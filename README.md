@@ -51,6 +51,7 @@ public class IcqApp implements IICQListener
                     .setIncludePresenceFields(ICQSessionData.IncludePresenceFieldsAll);
             icq.startSession(session);
         }
+        request.release();
     }
     public void icqStarted(IICQRequest request)
     {
@@ -58,6 +59,7 @@ public class IcqApp implements IICQListener
             icq.startFetch();
             icq.setState("online");
         }
+        request.release();
     }
 
     public void icqReceivedMessage(ICQReceivedMessage message)
