@@ -230,4 +230,9 @@ class ICQRequest implements FutureCallback<Content>, IICQRequest
         if (running) cancel();
         if (!pool.contains(this)) pool.add(this);
     }
+
+    public String toString()
+    {
+        return "[ICQRequest id:"+this.id+", url:"+this.url+"]";
+    }
 }

@@ -8,5 +8,5 @@ public interface IICQListener
     void icqConnected(IICQRequest request);
     void icqStarted(IICQRequest request);
     void icqReceivedMessage(ICQReceivedMessage message);
-    void icqReceivedEvent(ICQReceivedEvent event);
+    default void icqReceivedEvent(ICQReceivedEvent event) {ICQDebug.out("icqReceivedEvent:", event.eventData);}
 }

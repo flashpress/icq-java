@@ -110,12 +110,7 @@ public class ICQ implements ActionListener
         }
         //
         fetchRequest = ICQRequest.create(ICQRequest.HttpMethods.GET, this.fetchUrl);
-        fetchRequest.addListener(new IICQRequestListener() {
-            @Override
-            public void requestCompleted(IICQRequest request) {
-                fetchComplete((ICQRequest) request);
-            }
-        });
+        fetchRequest.addListener((request)-> fetchComplete((ICQRequest) request));
         fetchRequest.setParameter("r", getTime());
         fetchRequest.setParameter("f", "JSON");
         fetchRequest.setParameter("peek", "0");
@@ -201,12 +196,7 @@ public class ICQ implements ActionListener
     public void connect()
     {
         ICQRequest connectRequest = ICQRequest.create(ICQRequest.HttpMethods.POST, ICQRequest.HttpShemes.HTTPS, ICQRequest.Urls.CLIENT_LOGIN);
-        connectRequest.addListener(new IICQRequestListener() {
-            @Override
-            public void requestCompleted(IICQRequest request) {
-                connectComplete((ICQRequest)request);
-            }
-        });
+        connectRequest.addListener((request)->connectComplete((ICQRequest)request));
         connectRequest.setParameter("s", this.uin);
         connectRequest.setParameter("pwd", this.password);
         connectRequest.setParameter("k", this.token);
@@ -219,12 +209,7 @@ public class ICQ implements ActionListener
     public void startSession(ICQSessionData sessionData)
     {
         ICQRequest startRequest = ICQRequest.create(ICQRequest.HttpMethods.GET, ICQRequest.HttpShemes.HTTP, ICQRequest.Urls.API_ENDPOINT_START_SESSION);
-        startRequest.addListener(new IICQRequestListener() {
-            @Override
-            public void requestCompleted(IICQRequest request) {
-                startComplete((ICQRequest)request);
-            }
-        });
+        startRequest.addListener((request)->startComplete((ICQRequest)request));
         startRequest.setParameter("view", sessionData.view);
         startRequest.setParameter("invisible", String.valueOf(sessionData.invisible));
         startRequest.setParameter("mobile", !sessionData.mobile ? "0" : "1");
@@ -263,17 +248,14 @@ public class ICQ implements ActionListener
 
     public void disconnect()
     {
-        ICQRequest request = ICQRequest.create(ICQRequest.HttpMethods.GET, ICQRequest.HttpShemes.HTTP, ICQRequest.Urls.API_ENDPOINT_END_SESSION);
-        request.addListener(new IICQRequestListener() {
-            @Override
-            public void requestCompleted(IICQRequest request) {
-                fetchUrl = null;
-                aimsid = null;
-                request.release();
-            }
+        ICQRequest disconnectRequest = ICQRequest.create(ICQRequest.HttpMethods.GET, ICQRequest.HttpShemes.HTTP, ICQRequest.Urls.API_ENDPOINT_END_SESSION);
+        disconnectRequest.addListener((request) -> {
+            fetchUrl = null;
+            aimsid = null;
+            request.release();
         });
-        apiRequest(request);
-        request.run();
+        apiRequest(disconnectRequest);
+        disconnectRequest.run();
     }
 
     public IICQRequest setState(String state)

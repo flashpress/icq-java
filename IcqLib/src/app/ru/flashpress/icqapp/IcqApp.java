@@ -4,6 +4,8 @@ import ru.flashpress.icq.*;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,7 +57,6 @@ public class IcqApp implements IICQListener
 
     public IcqApp()
     {
-
     }
 
     private ICQ icq;
@@ -94,11 +95,12 @@ public class IcqApp implements IICQListener
     public void icqReceivedMessage(ICQReceivedMessage message)
     {
         if (message.getText().equalsIgnoreCase("ping")) {
-            icq.sendMessage(new ICQSendMessage().setUin(message.getUin()).setMessage("pong"));
+            IICQRequest request = icq.sendMessage(new ICQSendMessage().setUin(message.getUin()).setMessage("pong"));
+            request.addListener(this::sendMessageComplete);
         }
     }
-    public void icqReceivedEvent(ICQReceivedEvent event)
+    private void sendMessageComplete(IICQRequest request)
     {
-
+        ICQDebug.out("sendMessageComplete = " + request);
     }
 }
