@@ -1,9 +1,12 @@
-package ru.flashpress.icqapp;
+package ru.flashpress.pingpong;
 
 import ru.flashpress.icq.*;
 
+
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -12,22 +15,25 @@ import java.util.regex.Pattern;
 /**
  * Created by sam on 17.05.16.
  */
-public class IcqApp implements IICQListener
+public class PingPongApp implements IICQListener
 {
     public static void main(String[] args)
     {
+        Path currentRelativePath = Paths.get("");
+        System.out.println("Current relative path is: " + currentRelativePath.toAbsolutePath().toString());
+        //
         String argsSrc = null;
         if (args.length > 0) {
             argsSrc = "";
             for (String s : args) argsSrc += " " + s;
         } else {
             try {
-                byte[] bytes = Files.readAllBytes(Paths.get("../config.txt"));
+                byte[] bytes = Files.readAllBytes(Paths.get("./run.config"));
                 argsSrc = new String(bytes);
             } catch (Exception e) {}
         }
         if (argsSrc == null) {
-            System.out.println("not found file ../config.txt = -uin <UIN> -password <PASS>");
+            System.out.println("not found file ./run.config = -uin <UIN> -password <PASS>");
             System.exit(1);
         }
         //
@@ -35,7 +41,7 @@ public class IcqApp implements IICQListener
         String uin = getString(argsSrc, "uin");
         String password = getString(argsSrc, "password");
         //
-        IcqApp app = new IcqApp();
+        PingPongApp app = new PingPongApp();
         app.start(debug, uin, password);
     }
     private static String getString(String source, String name)
@@ -55,7 +61,7 @@ public class IcqApp implements IICQListener
         return m.find();
     }
 
-    public IcqApp()
+    public PingPongApp()
     {
     }
 

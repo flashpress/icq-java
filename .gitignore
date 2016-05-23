@@ -2,3 +2,6 @@ out
 *.tmp
 .idea/workspace.xml
 temp
+run.config
+.gradle
+build

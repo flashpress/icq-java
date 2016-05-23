@@ -1,7 +1,11 @@
 # Build and Run
-
+Create `run.config` file with content:
 ```
-./build/build_and_run.sh -debug -uin <your_uin> -password <your_password>
+-debug -uin <your_uin> -password <your_password>
+```
+and run:
+```
+./gradlew run
 ```
 
 # Ping-Pong bot
@@ -12,7 +16,7 @@ import ru.flashpress.icq.*;
 /**
  * Created by sam on 17.05.16.
  */
-public class IcqApp implements IICQListener
+public class PingPongApp implements IICQListener
 {
     public static void main(String[] args)
     {
@@ -20,11 +24,11 @@ public class IcqApp implements IICQListener
         String uin = "your uin";
         String password = "your password";
         //
-        IcqApp app = new IcqApp();
+        PingPongApp app = new PingPongApp();
         app.start(debug, uin, password);
     }
 
-    public IcqApp()
+    public PingPongApp()
     {
 
     }
