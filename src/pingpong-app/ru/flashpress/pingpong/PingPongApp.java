@@ -7,8 +7,6 @@ import ru.flashpress.icq.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,10 +70,10 @@ public class PingPongApp implements IICQListener
         //
         icq = new ICQ(uin, password, "ic17mFHiwr52TKrx");
         icq.addListener(this);
-        icq.connect();
+        IICQRequest connectRequest = icq.connect();
+        connectRequest.addListener(this::onConnected);
     }
-
-    public void icqConnected(IICQRequest request)
+    private void onConnected(IICQRequest request)
     {
         if (request.getStatusCode() == 200) {
             ICQSessionData session = new ICQSessionData()
@@ -85,11 +83,12 @@ public class PingPongApp implements IICQListener
                     .setSessionTimeout(2592000)
                     .setEvents(ICQSessionData.EventsAll)
                     .setIncludePresenceFields(ICQSessionData.IncludePresenceFieldsAll);
-            icq.startSession(session);
+            IICQRequest startRequest = icq.startSession(session);
+            startRequest.addListener(this::onStartedSession);
         }
         request.release();
     }
-    public void icqStarted(IICQRequest request)
+    private void onStartedSession(IICQRequest request)
     {
         if (request.getStatusCode() == 200) {
             icq.startFetch();
@@ -101,12 +100,13 @@ public class PingPongApp implements IICQListener
     public void icqReceivedMessage(ICQReceivedMessage message)
     {
         if (message.getText().equalsIgnoreCase("ping")) {
-            IICQRequest request = icq.sendMessage(new ICQSendMessage().setUin(message.getUin()).setMessage("pong"));
-            request.addListener(this::sendMessageComplete);
+            IICQRequest request = icq.sendMessage(new ICQSendMessage().setUin(message.getUin()).setText("pong"));
+            request.addListener(this::onSendMessage);
         }
     }
-    private void sendMessageComplete(IICQRequest request)
+    private void onSendMessage(IICQRequest request)
     {
-        ICQDebug.out("sendMessageComplete = " + request);
+        ICQDebug.out("onSendMessage = " + request);
+        request.release();
     }
 }

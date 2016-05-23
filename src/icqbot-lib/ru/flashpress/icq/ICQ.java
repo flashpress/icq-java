@@ -20,6 +20,13 @@ public class ICQ implements ActionListener
     private String token;
     //
     private HashSet<IICQListener> listeners;
+
+    /**
+     * Конструктор
+     * @param uin Ваш icq uin номер
+     * @param password Пароль от вашего uin
+     * @param token Константа
+     */
     public ICQ(String uin, String password, String token)
     {
         this.uin = uin;
@@ -172,13 +179,13 @@ public class ICQ implements ActionListener
         fetchEvent();
     }
 
-    private boolean getBoolParameter(Object o)
+    private static boolean getBoolParameter(Object o)
     {
         String str = o != null ? o.toString() : "";
         return str.equals("true");
     }
 
-    private String getTime()
+    private static String getTime()
     {
         long time = System.currentTimeMillis();
         time = Long.parseLong("" + String.valueOf(time));
@@ -188,12 +195,20 @@ public class ICQ implements ActionListener
 
     // public API --------------------------------------------------------------------------------
 
+    /**
+     * Зарегистрировать слушателя событий, необходим для получения события о новом сообщении IICQListener::icqReceivedMessage
+     * @param listener
+     */
     public void addListener(IICQListener listener)
     {
         listeners.add(listener);
     }
 
-    public void connect()
+    /**
+     * Установить соединение с сервером
+     * @return Объект IICQRequest, который необходимо освободить после завершения, вызвав метод release().
+     */
+    public IICQRequest connect()
     {
         ICQRequest connectRequest = ICQRequest.create(ICQRequest.HttpMethods.POST, ICQRequest.HttpShemes.HTTPS, ICQRequest.Urls.CLIENT_LOGIN);
         connectRequest.addListener((request)->connectComplete((ICQRequest)request));
@@ -205,8 +220,15 @@ public class ICQ implements ActionListener
         connectRequest.setParameter("idType", "ICQ");
         connectRequest.setParameter("f", "JSON");
         connectRequest.run();
+        return connectRequest;
     }
-    public void startSession(ICQSessionData sessionData)
+
+    /**
+     * Начать сессию.
+     * @param sessionData Информация о текущей сессии
+     * @return Объект IICQRequest, который необходимо освободить после завершения, вызвав метод release().
+     */
+    public ICQRequest startSession(ICQSessionData sessionData)
     {
         ICQRequest startRequest = ICQRequest.create(ICQRequest.HttpMethods.GET, ICQRequest.HttpShemes.HTTP, ICQRequest.Urls.API_ENDPOINT_START_SESSION);
         startRequest.addListener((request)->startComplete((ICQRequest)request));
@@ -218,22 +240,41 @@ public class ICQ implements ActionListener
         startRequest.setParameter("includePresenceFields", StringUtils.join(sessionData.includePresenceFields, ","));
         signedRequest(startRequest);
         startRequest.run();
+        return startRequest;
     }
 
     private boolean fetching;
+
+    /**
+     * Прослушивает ли приложение сервер в данный момент. Если false - вызовите метод startFetch().
+     * @return
+     */
     public boolean isFetching() {return fetching;}
 
     private String fetchTimeoutStr;
+
+    /**
+     * Начать прослушивать сервер на наличие новых сообщений. Устанавливает свойство isFetching в значение false
+     * @param fetchTimeout Время в миллисекундах, через которое приложение закрывает текущее long-poll соединение и открывает новое.
+     */
     public void startFetch(int fetchTimeout)
     {
         this.fetchTimeoutStr = String.valueOf(fetchTimeout);
         this.fetching = true;
         fetchEvent();
     }
+
+    /**
+     * Начать прослушивать сервер на наличие новых сообщений c таймаутом 30 сек. Устанавливает свойство isFetching в значение false
+     */
     public void startFetch()
     {
         this.startFetch(30000);
     }
+
+    /**
+     * Остановить прослушшивание сервера на наличие новых сообщений. Устанавливает свойство isFetching в значение false
+     */
     public void stopFetch()
     {
         this.fetching = false;
@@ -246,7 +287,11 @@ public class ICQ implements ActionListener
         }
     }
 
-    public void disconnect()
+    /**
+     * Разоравать соединение с сервером.
+     * @return
+     */
+    public ICQRequest disconnect()
     {
         ICQRequest disconnectRequest = ICQRequest.create(ICQRequest.HttpMethods.GET, ICQRequest.HttpShemes.HTTP, ICQRequest.Urls.API_ENDPOINT_END_SESSION);
         disconnectRequest.addListener((request) -> {
@@ -256,8 +301,14 @@ public class ICQ implements ActionListener
         });
         apiRequest(disconnectRequest);
         disconnectRequest.run();
+        return disconnectRequest;
     }
 
+    /**
+     * Установить текущее состояние клиента online/offline
+     * @param state Может принимать одно из значений {online, offline}
+     * @return Объект IICQRequest, который необходимо освободить после завершения, вызвав метод release().
+     */
     public IICQRequest setState(String state)
     {
         ICQRequest request = ICQRequest.create(ICQRequest.HttpMethods.GET, ICQRequest.HttpShemes.HTTP, ICQRequest.Urls.API_ENDPOINT_SET_STATE);
@@ -267,11 +318,16 @@ public class ICQ implements ActionListener
         return request;
     }
 
+    /**
+     * Отправить сообщение собеседнику
+     * @param message Сообщение которое необходимо отправить
+     * @return Объект IICQRequest, который необходимо освободить после завершения, вызвав метод release().
+     */
     public IICQRequest sendMessage(ICQSendMessage message)
     {
         ICQRequest request = ICQRequest.create(ICQRequest.HttpMethods.POST, ICQRequest.HttpShemes.HTTP, ICQRequest.Urls.API_ENDPOINT_SEND_MESSAGE);
         request.setParameter("t", message.uin);
-        request.setParameter("message", message.message);
+        request.setParameter("message", message.text);
         request.setParameter("notifyDelivery", message.notifyDelivery?"1":"0");
         apiRequest(request);
         request.run();

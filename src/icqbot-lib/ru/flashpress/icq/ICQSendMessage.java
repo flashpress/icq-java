@@ -1,6 +1,7 @@
 package ru.flashpress.icq;
 
 /**
+ * Класс для отправки сообщения собеседнику
  * Created by sam on 18.05.16.
  */
 public class ICQSendMessage
@@ -11,16 +12,27 @@ public class ICQSendMessage
     }
 
     String uin;
+
+    /**
+     * UIN номер кому адресовано сообщение
+     * @param value uin номер
+     * @return
+     */
     public ICQSendMessage setUin(String value)
     {
         this.uin = value;
         return this;
     }
 
-    String message;
-    public ICQSendMessage setMessage(String value)
+    String text;
+    /**
+     * Установить текст сообщения
+     * @param value Текст сообщения
+     * @return
+     */
+    public ICQSendMessage setText(String value)
     {
-        this.message = value;
+        this.text = value;
         return this;
     }
 

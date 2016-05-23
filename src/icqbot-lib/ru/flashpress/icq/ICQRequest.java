@@ -174,6 +174,8 @@ class ICQRequest implements FutureCallback<Content>, IICQRequest
         listeners.add(listener);
     }
 
+    public int getId() {return this.id;}
+
     private int statusCode;
     public int getStatusCode() {return this.statusCode;}
 

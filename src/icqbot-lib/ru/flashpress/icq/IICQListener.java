@@ -5,8 +5,8 @@ package ru.flashpress.icq;
  */
 public interface IICQListener
 {
-    void icqConnected(IICQRequest request);
-    void icqStarted(IICQRequest request);
     void icqReceivedMessage(ICQReceivedMessage message);
+    default void icqConnected(IICQRequest request) {ICQDebug.out("icqConnected:", request);}
+    default void icqStarted(IICQRequest request) {ICQDebug.out("icqStarted:", request);}
     default void icqReceivedEvent(ICQReceivedEvent event) {ICQDebug.out("icqReceivedEvent:", event.eventData);}
 }
